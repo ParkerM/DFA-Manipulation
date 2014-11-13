@@ -43,6 +43,7 @@ reject
 accept
 reject
 ```
+A more complex example DFA and strings file is provided in the repo.
 
 Text Searcher
 ================
@@ -60,4 +61,4 @@ The simulator can be used to confirm that the resulting DFA is correct.
 accept
 ```
 
-A more complex DFA, strings file, and text search string file is provided in the repo for further examples.
+An example text search string file is provided in the repo.
