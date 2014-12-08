@@ -48,17 +48,19 @@ A more complex example DFA and strings file is provided in the repo.
 Text Searcher
 ================
 
-Takes a string as input and prints to stdout a DFA that will accept strings containing the input string as a substring. The DFA will be formatted as previously described. The string input file should contain a single line and belong to the alphabet a-z (all lowercase letters).
+~~Takes a string as input and prints to stdout a DFA that will accept strings containing the input string as a substring. The DFA will be formatted as previously described. The string input file should contain a single line and belong to the alphabet a-z (all lowercase letters).~~
 
-To run:
+~~To run:~~
 ```
 ./textsearch <string file>
 ```
-The simulator can be used to confirm that the resulting DFA is correct.
+~~The simulator can be used to confirm that the resulting DFA is correct.~~
 ```
 ./texsearch <string file> > outdfa
 ./simulateDFA outdfa <string file>
 accept
 ```
 
-An example text search string file is provided in the repo.
+~~An example text search string file is provided in the repo.~~
+
+Textsearch currently returns a DFA that accepts the input string as a substring, but it may also accept other strings as a substring.
