@@ -9,16 +9,15 @@
  * Created on November 06, 2014
  * Last modified November 11, 2014
  */
-
+ 
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <string>
-
+ 
 using namespace std;
-
+ 
 int main(int argc, char** argv) {
     int numStates = 0;
     string input;
@@ -26,9 +25,8 @@ int main(int argc, char** argv) {
     int inputLength;
     int alphabetLength = alphabet.length();
     int acceptingState;
-    int count = 0; //count # of filled spaces
-    int totalTrans;
-
+    int offset = 97; //char to int offset for lowercase letters
+     
    /*
     * read input from text file
     */
@@ -37,99 +35,59 @@ int main(int argc, char** argv) {
     getline(textFile, input);
     inputLength = input.length();
     acceptingState = inputLength;
-    numStates = inputLength;
-
+    numStates = inputLength + 1;
+ 
    /*
     * Construct a DFA that accepts the input string
     */
-    //count the number of unique chars in the input string
-    int charsPresent = alphabetLength;
-    vector<char> charAssoc;
-    for (int i = 0; i < alphabetLength; i++) {
-        if (input.find(alphabet.at(i)) == string::npos) {
-            charsPresent--;
-        } else charAssoc.push_back(alphabet.at(i));
-    }
-    totalTrans = numStates * charsPresent;
-    cout << "trans required: " << totalTrans << endl;
-
-    //create transition table
-    int trans[numStates + 1][charsPresent]; 
+    //create array for transition table
+    int trans[numStates][alphabetLength]; 
+    // for (int i = 0; i < numStates; i++) {
+    //     for (int j = 0; j < alphabetLength; j++) {
+    //         trans[i][j] = 0;
+    //     }
+    // }
 
     //compute transition table via Knuth-Morris-Pratt construction
     //this section accounts for finding a pure substring without looping
-    for (int i = 0; i < numStates; i++) {
-        for (int j = 0; j < charsPresent; j++) {
-            if (charAssoc.at(j) == input.at(i)) {
-                trans[i][j] = i + 1;
-                count++;
-                cout << count << endl;
-                if (i == 0) { //fill the rest of state 0 with 0s
-                    for (int k = 0; k < charsPresent; k++) {
-                        if (trans[i][k] != i+1) {
-                            trans[i][k] = 0;
-                            count++;
-                        }
-                    }
-                }
+    for (int i = 0; i < inputLength; i++) {
+        trans[i][input.at(i) - offset] = i + 1;
+        //fill the rest of state 1 with 0's
+        if (i == 0) {
+            for (int j = 0; j < alphabetLength; j++) {
+                if (j != input.at(i) - offset)
+                    trans[i][j] = 0;
             }
         }
     }
 
     //now we account for loops within the substring
     int s = 0;
-    for (int i = 0; i < numStates; i++) {
-        for (int j = 0; j < charsPresent; j++) {
-            if (charAssoc.at(j) != input.at(i)) {
+    for (int i = 0; i < inputLength; i++) {
+        for (int j = 0; j < alphabetLength; j++) {
+            if (j != input.at(i) - offset)
                 trans[i][j] = trans[s][j];
-                count++;
-                cout << count << endl;
-                if (count == totalTrans) {
-                    goto done;
-                }
-            }
         }
-
-        for (int j = 0; j < charsPresent; j++) {
-            if (input.at(s) == charAssoc.at(j)) {
-                s = trans[s][j];
-                cout << "changing s to " << s << endl;
-                break;
-            }
-        }
-        cout << "out of loop" << endl;
-    }
-    // for (int i = s; i < numStates; i++) {
-    //     for (int j = 0; j < charsPresent; j++) {
-    //         if (charAssoc.at(j) == input.at(i)) {
-    //             s = trans[s][j];
-    //             cout << "changing s to " << s << endl;
-    //             exitLoop = true;
-    //             break;
-    //         }
-    //     }
-    //     cout << "still in loop " << i << endl;
-    // }
-    done:
-
-
-    //now loop final state to itself in every case
-    for (int i = 0; i < charsPresent; i++) {
-        trans[numStates][i] = acceptingState;
+        s = trans[s][input.at(i) - offset];
     }
 
+    //the last state will only transition to itself
+    for (int i = 0; i < alphabetLength; i++) {
+        trans[numStates - 1][i] = numStates - 1;
+    }
+ 
    /*
     * Reconstruct the DFA to a readable format and
     * print to stdout.
     */
-    cout << "Number of states: " << numStates + 1 << endl;
+    cout << "Number of states: " << numStates << endl;
     cout << "Accepting states: " << acceptingState << endl;
     cout << "Alphabet: abcdefghijklmnopqrstuvwxyz" << endl;
-    for (int i = 0; i <= numStates; i++) {
-        for (int j = 0; j < charsPresent - 1; j++) {
+    for (int i = 0; i < numStates; i++) {
+        for (int j = 0; j < alphabetLength - 1; j++) {
             cout << trans[i][j] << " ";
         }
-        cout << trans[i][charsPresent - 1] << endl;
+        cout << trans[i][alphabetLength - 1] << endl;
     }
     return 0;
 }
